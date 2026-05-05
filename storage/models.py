@@ -122,6 +122,14 @@ class DocumentModel(Base):
     )
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
+    # Art / Creative metadata
+    art_style: Mapped[Optional[str]] = mapped_column(String(64))
+    art_technique: Mapped[Optional[str]] = mapped_column(String(64))
+    art_medium: Mapped[Optional[str]] = mapped_column(String(64))
+    artist_name: Mapped[Optional[str]] = mapped_column(String(255))
+    artwork_title: Mapped[Optional[str]] = mapped_column(String(255))
+    proposal_status: Mapped[Optional[str]] = mapped_column(String(20))  # draft, submitted, accepted, rejected
+
     # Error
     error_message: Mapped[Optional[str]] = mapped_column(Text)
 
