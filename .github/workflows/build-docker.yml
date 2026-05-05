@@ -1,0 +1,67 @@
+name: Build and Push Argos Docker Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'core/**'
+      - 'ingestion/**'
+      - 'embeddings/**'
+      - 'storage/**'
+      - 'encryption/**'
+      - 'api/**'
+      - 'ui/spa.html'
+      - 'deploy/Dockerfile.runpod'
+      - 'deploy/entrypoint.sh'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/argos
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.runpod
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/doureallydo/argos:latest
+            ghcr.io/doureallydo/argos:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Make package public
+        run: |
+          curl -s -X PATCH \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -d '{"visibility":"public"}' \
+            "https://api.github.com/user/packages/container/argos"
