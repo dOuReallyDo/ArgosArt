@@ -124,9 +124,10 @@ Argos <span class="badge">RAG</span>
 <!-- ADMIN -->
 <div class="page" id="page-admin">
 <div class="c">
-<h2>⚙️ Pannello Amministratore</h2>
+<h2>⚙️ Pannello Amministratore (Producer)</h2>
 <div class="row" style="margin-bottom:10px">
-<button class="btn btn-s btn-sm" onclick="showSearch()">🔍 Ricerca Semantica</button>
+<button class="btn btn-s btn-sm" onclick="showMatch()">🎯 Matching</button>
+<button class="btn btn-s btn-sm" onclick="showArtistSearch()">🔍 Ricerca Semantica</button>
 <button class="btn btn-s btn-sm" onclick="listDocs()">📋 Documenti</button>
 <button class="btn btn-s btn-sm" onclick="listSources()">👥 Fonti</button>
 <button class="btn btn-s btn-sm" onclick="showHealth()">❤️ Health</button>
@@ -316,6 +317,80 @@ async function doSearch() {
   } catch(e) {
     div.innerHTML = `<div class="status warn">⚠️ Ricerca semantica non disponibile: ${e.message}. Qdrant potrebbe non essere attivo.</div>`;
   }
+}
+
+// ── Admin: Matching ──
+function showMatch() {
+  const div = document.getElementById('admin-content');
+  div.innerHTML = `
+    <h3>🎯 Matching Artista ↔ Ruolo</h3>
+    <p style="font-size:12px;color:var(--t2);margin-bottom:8px">Descrivi il ruolo e trova gli artisti più adatti</p>
+    <input type="text" id="match-title" placeholder="Titolo ruolo (es. Soprano per Musical)" style="margin-bottom:6px">
+    <textarea id="match-desc" placeholder="Descrizione dettagliata del ruolo..." style="margin-bottom:6px"></textarea>
+    <div class="row" style="margin-bottom:6px">
+      <input type="text" id="match-voice" placeholder="Tipo voce (es. Soprano)" style="flex:1">
+      <input type="text" id="match-range" placeholder="Range (es. G2-B4)" style="flex:1">
+    </div>
+    <div class="row" style="margin-bottom:6px">
+      <input type="number" id="match-height-min" placeholder="Alt. min cm" style="flex:1">
+      <input type="number" id="match-height-max" placeholder="Alt. max cm" style="flex:1">
+      <input type="number" id="match-age-max" placeholder="Età max" style="flex:1">
+    </div>
+    <div class="row" style="margin-bottom:6px">
+      <input type="text" id="match-dance" placeholder="Danza richiesta (es. moderno, contemporaneo)" style="flex:1">
+      <input type="text" id="match-lang" placeholder="Lingue (es. inglese, francese)" style="flex:1">
+    </div>
+    <div class="row gap">
+      <button class="btn btn-p btn-sm" onclick="doMatch()">🎯 Trova Artisti</button>
+      <select id="match-topk" style="width:80px;padding:4px"><option>5</option><option selected>10</option><option>20</option></select>
+    </div>
+    <div id="match-results"></div>`;
+}
+
+async function doMatch() {
+  const title = document.getElementById('match-title')?.value.trim();
+  const desc = document.getElementById('match-desc')?.value.trim();
+  if (!title && !desc) return alert('Inserisci almeno il titolo o la descrizione del ruolo');
+
+  const div = document.getElementById('match-results');
+  div.innerHTML = '<div class="empty pulse">🎯 Ricerca artisti in corso...</div>';
+
+  const body = {
+    title: title || desc.slice(0,60),
+    description: desc || title,
+    voice_types: document.getElementById('match-voice')?.value.trim() ? [document.getElementById('match-voice').value.trim()] : [],
+    voice_range: document.getElementById('match-range')?.value.trim() || '',
+    min_height_cm: parseInt(document.getElementById('match-height-min')?.value) || null,
+    max_height_cm: parseInt(document.getElementById('match-height-max')?.value) || null,
+    max_age: parseInt(document.getElementById('match-age-max')?.value) || null,
+    required_dance: document.getElementById('match-dance')?.value.trim().split(',').map(s=>s.trim()).filter(Boolean) || [],
+    required_languages: document.getElementById('match-lang')?.value.trim().split(',').map(s=>s.trim()).filter(Boolean) || [],
+    top_k: parseInt(document.getElementById('match-topk')?.value || '10'),
+  };
+
+  try {
+    const r = await fetch('/api/match', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await r.json();
+    if (!data.matches?.length) { div.innerHTML = '<div class="empty">🎯 Nessun artista trovato per questo ruolo</div>'; return; }
+
+    div.innerHTML = `<p style="font-size:11px;color:var(--t2);margin:8px 0">${data.total_matches} artisti trovati · ${data.took_ms?.toFixed(0)||0}ms</p>` +
+      data.matches.map((m,i) => `<div class="result">
+        <div class="meta">
+          <span class="fname">👤 ${m.artist_name||'Artista '+(i+1)}</span>
+          <span class="score">${(m.score*100).toFixed(0)}% match</span>
+        </div>
+        <div class="info">
+          ${m.profile_summary ? '<span>'+m.profile_summary.slice(0,120)+'</span>' : ''}
+          <a href="/api/documents/${m.document_id}/download" style="color:var(--p);text-decoration:none">⬇ Scarica CV</a>
+        </div>
+      </div>`).join('');
+  } catch(e) { div.innerHTML = `<div class="status err">❌ Matching non disponibile: ${e.message}</div>`; }
+}
+
+// ── Admin: Artist Search ──
+function showArtistSearch() {
+  // Reuse the existing semantic search but with art-specific filters
+  showSearch();
 }
 
 // ── Admin: Documents ──
