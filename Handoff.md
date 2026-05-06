@@ -1,6 +1,6 @@
 # Handoff.md — ArgosArt × he.Art
 
-_Ultimo aggiornamento: 2026-05-06 02:00 CET_
+_Ultimo aggiornamento: 2026-05-06 02:35 CET_
 _A cura di: Neo (OpenClaw Agent)_
 
 ---
@@ -22,7 +22,7 @@ Vendere ad **he.Art** un sistema RAG chiavi in mano per:
 | Progetto | Repo GitHub | Path Locale | Stato |
 |---|---|---|---|
 | **Argos** (RAG general-purpose) | [doureallydo/argos](https://github.com/doureallydo/argos) | `/Volumes/HD_esterno/OpenClaw_Workspace/argos/` | ✅ Completato, online |
-| **ArgosArt** (RAG × he.Art) | [doureallydo/ArgosArt](https://github.com/doureallydo/ArgosArt) | `/Volumes/HD_esterno/OpenClaw_Workspace/argosart/` | 🔄 In sviluppo |
+| **ArgosArt** (RAG × he.Art) | [doureallydo/ArgosArt](https://github.com/doureallydo/ArgosArt) | `/Volumes/HD_esterno/OpenClaw_Workspace/argosart/` | 🔄 MA5 completato, MA6 in corso |
 
 ---
 
@@ -38,15 +38,15 @@ argosart/
 │   ├── base.py        # Interfaccia parser + registry
 │   ├── pdf_parser.py  # PDF (pdfplumber + GLM-OCR opzionale)
 │   ├── image_parser.py    # Immagini (EasyOCR + Tesseract)
-│   ├── art_cv_parser.py   # 🆕 CV artistico strutturato
-│   ├── transcoder.py      # 🆕 HEIC→JPG, MOV→MP4, resize
-│   ├── validator.py       # 🆕 Checklist materiali richiesti
+│   ├── art_cv_parser.py   # ✅ CV artistico strutturato
+│   ├── transcoder.py      # ✅ HEIC→JPG, MOV→MP4, resize
+│   ├── validator.py       # ✅ Checklist materiali richiesti
 │   ├── pipeline.py        # Orchestratore ingestion
 │   └── ...
 ├── embeddings/        # Modelli embedding + Qdrant
 │   ├── embedders.py   # CLIP + E5 + CLAP + Gemini opzionale
 │   ├── vector_store.py    # Qdrant async client
-│   └── matching.py        # 🆕 Artista↔Ruolo matching
+│   └── matching.py        # ✅ Artista↔Ruolo matching
 ├── storage/           # Database relazionale + file storage
 │   ├── models.py      # SQLAlchemy ORM (con campi arte)
 │   ├── database.py    # Session factory
@@ -57,11 +57,11 @@ argosart/
 │   └── auth.py        # JWT/OAuth2
 ├── api/               # FastAPI REST
 │   ├── main.py        # App entrypoint
-│   ├── routes.py      # Endpoints
-│   └── schemas.py     # Pydantic models
+│   ├── routes.py      # Endpoints (upload, search, documents)
+│   ├── schemas.py     # Pydantic models
+│   └── matching_routes.py  # ✅ Endpoint matching + portfolio
 ├── ui/                # Frontend SPA
-│   ├── spa.html       # Single-page app (servita da FastAPI)
-│   └── src/           # React (non usato in produzione)
+│   └── spa.html       # Single-page app (servita da FastAPI)
 ├── deploy/            # Docker, compose, script
 └── tests/             # Test suite
 ```
@@ -112,20 +112,21 @@ argosart/
 | Tunnel Cloudflare effimero | URL cambia a ogni riavvio | Usare tunnel named con dominio proprio |
 | `asyncio.get_event_loop()` in thread | Crash in produzione | Usare `asyncio.get_running_loop()` |
 | Dimensioni vettori mismatch | 400 Bad Request da Qdrant | Verificare dimensione embedding model prima di creare collection |
-| Upload multipart via tunnel | Timeout su file grandi | Aumentare `max_upload_size_mb` e timeout proxy |
 
 ---
 
-## 📋 Prossimi Step (in ordine)
+## 📋 Milestone Completate
 
-1. [ ] Implementare `art_cv_parser.py` — estrazione strutturata CV artistici
-2. [ ] Implementare `transcoder.py` — conversione automatica formati
-3. [ ] Implementare `validator.py` — checklist materiali richiesti
-4. [ ] Implementare `matching.py` — matching semantico artista↔ruolo
-5. [ ] Aggiornare UI con vista producer/galleria
-6. [ ] Aggiungere endpoint API per matching e proposal tracking
-7. [ ] Deploy su RunPod (risolvere issue GHCR)
-8. [ ] Preparare presentazione commerciale per he.Art
+1. ✅ MA1 — Fondamenta (repo + struttura + README + config)
+2. ✅ MA2 — Modelli Arte (campi art_style, technique, medium, artist_name, proposal_status)
+3. ✅ MA3 — CV Parser Artistico + Smart Transcoder + Validator
+4. ✅ MA4 — Matching Engine semantico (JobRequirements, hard filters, rank merge)
+5. ✅ MA5 — API Matching & Dashboard (POST /api/match, GET /api/profile, GET /api/dashboard/stats)
+
+## 📋 Prossimi Step
+
+1. [ ] MA6 — UI Producer Dashboard (ricerca semantica + shortlist + profili artista)
+2. [ ] MA7 — Deploy & Documentazione Commerciale (RunPod + presentazione he.Art)
 
 ---
 

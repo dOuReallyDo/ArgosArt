@@ -1,6 +1,6 @@
 # ArgosArt — Stato Avanzamento
 
-_Ultimo aggiornamento: 2026-05-06 02:00 CET_
+_Ultimo aggiornamento: 2026-05-06 02:35 CET_
 
 ---
 
@@ -18,25 +18,36 @@ _Ultimo aggiornamento: 2026-05-06 02:00 CET_
 - `storage/models.py`: aggiunte colonne corrispondenti in SQLAlchemy ORM
 - `.env.example`: aggiornato con variabili per funzionalità artistiche
 
+### MA3 — CV Parser + Transcoder + Validator (06/05/2026 02:20)
+- `ingestion/art_cv_parser.py` (20.9KB): estrazione strutturata da CV PDF artistici
+  - Dati fisici, vocali, skills (90+ keyword), formazione, esperienze, lingue
+  - `to_searchable_text()` e `to_tags()` per embedding e matching
+- `ingestion/transcoder.py` (7.9KB): conversione automatica formati
+  - HEIC→JPG, MOV→MP4, RAW→JPG, audio normalization
+- `ingestion/validator.py` (5.0KB): checklist materiali richiesti per bando
+
+### MA4 — Matching Engine (06/05/2026 02:28)
+- `embeddings/matching.py` (7.9KB): motore di matching semantico
+  - `JobRequirements` dataclass con filtri hard (voce, altezza, età, skills, danza, lingue)
+  - Semantic search → hard filter → rank merge → dedup
+  - Cosine similarity per matching offline (demo/batch)
+
+### MA5 — API Matching & Dashboard (06/05/2026 02:32)
+- `api/matching_routes.py` (6.0KB):
+  - `POST /api/match`: matching semantico artista↔ruolo
+  - `GET /api/profile/{doc_id}`: profilo strutturato da CV
+  - `GET /api/dashboard/stats`: statistiche dashboard
+
 ---
 
 ## Milestone In Corso 🔄
 
-### MA3 — CV Parser Artistico + Transcoding + Validator (0%)
-- `ingestion/art_cv_parser.py` — da creare
-- `ingestion/transcoder.py` — da creare
-- `ingestion/validator.py` — da creare
+### MA6 — UI Producer Dashboard (in corso)
+- Aggiungere vista Producer alla SPA: ricerca semantica + shortlist + profili artista
 
-### MA4 — Matching Engine (0%)
-- `embeddings/matching.py` — da creare
-
-### MA5 — API & UI per Producer (0%)
-- Nuovi endpoint: `/api/match`, `/api/proposals`
-- UI: vista galleria, shortlist, valutazioni
-
-### MA6 — Deploy & Documentazione Commerciale (0%)
-- Deploy su RunPod
-- Presentazione per he.Art
+### MA7 — Deploy & Documentazione Commerciale (0%)
+- Deploy su RunPod (risolvere issue GHCR)
+- Presentazione commerciale per he.Art
 
 ---
 
@@ -44,26 +55,17 @@ _Ultimo aggiornamento: 2026-05-06 02:00 CET_
 
 | Metrica | Valore |
 |---|---|
-| File totali | 68 |
-| Righe di codice | ~7.500 |
-| Moduli Python | 9 (core, ingestion×11, embeddings×3, storage×4, encryption×2, api×4) |
-| Parser supportati | PDF, Word, Excel, PPT, TXT, MD, Immagini (8 formati), Audio (18 formati), Video (22 formati) |
+| File totali | 72 |
+| Righe di codice | ~8.400 |
+| Moduli Python | 12 (core, ingestion×13, embeddings×4, storage×4, encryption×2, api×5) |
+| Parser supportati | PDF, Word, Excel, PPT, TXT, MD, Immagini (8 formati), Audio (18 formati), Video (22 formati), CV Artistici |
 | Embedding models | 4 (E5, CLIP, CLAP, Gemini2 opzionale) |
 | Collection Qdrant | 4 (text, images, audio, video) |
-
----
-
-## Decisioni Architetturali
-
-1. **SPA servita da FastAPI** invece di React build separato → deploy più semplice
-2. **Qdrant self-hosted** invece di ChromaDB → più performante su larga scala
-3. **PDF parsing dual-engine**: pdfplumber (primario) + GLM-OCR (opzionale per layout complessi)
-4. **Auth opzionale in dev mode** → accelera sviluppo e test
-5. **Colima invece di Docker Desktop** → non richiede sudo su macOS
-6. **Cloudflare Tunnel invece di ngrok** → già integrato con account Cloudflare
+| Nuovi endpoint | 3 (match, profile, dashboard) |
+| GitHub commits | 6 |
 
 ---
 
 ## Prossima Azione
 
-Implementare MA3 (CV Parser + Transcoding + Validator)
+Completare MA6 (UI Producer Dashboard) con vista ricerca semantica e shortlist artisti
