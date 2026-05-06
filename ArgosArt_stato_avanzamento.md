@@ -1,6 +1,6 @@
 # ArgosArt — Stato Avanzamento
 
-_Ultimo aggiornamento: 2026-05-06 02:35 CET_
+_Ultimo aggiornamento: 2026-05-06 06:15 CET_
 
 ---
 
@@ -38,16 +38,18 @@ _Ultimo aggiornamento: 2026-05-06 02:35 CET_
   - `GET /api/profile/{doc_id}`: profilo strutturato da CV
   - `GET /api/dashboard/stats`: statistiche dashboard
 
----
+### MA6 — UI Producer Dashboard (06/05/2026 06:10)
+- SPA admin panel:
+  - Tab `🎯 Matching`: form strutturato per ricerca ruolo→artisti
+  - Tab `🔍 Ricerca Semantica`: ricerca su profili artista
+  - Risultati con score %, download CV, info profilo
+- UI responsive, mobile-friendly
 
-## Milestone In Corso 🔄
-
-### MA6 — UI Producer Dashboard (in corso)
-- Aggiungere vista Producer alla SPA: ricerca semantica + shortlist + profili artista
-
-### MA7 — Deploy & Documentazione Commerciale (0%)
-- Deploy su RunPod (risolvere issue GHCR)
-- Presentazione commerciale per he.Art
+### MA7 — Documentazione Commerciale (06/05/2026 06:15)
+- `docs/PROPOSTA_COMMERCIALE.md`: proposta completa per he.Art
+  - Executive summary, pain point analysis, soluzione, pricing (3 opzioni), ROI, break-even
+  - Analisi costi attuali (€74.200/anno) vs con ArgosArt (€9.500/anno)
+  - Sinergia con Tinexta, garanzie, prossimi passi
 
 ---
 
@@ -55,17 +57,35 @@ _Ultimo aggiornamento: 2026-05-06 02:35 CET_
 
 | Metrica | Valore |
 |---|---|
-| File totali | 72 |
-| Righe di codice | ~8.400 |
-| Moduli Python | 12 (core, ingestion×13, embeddings×4, storage×4, encryption×2, api×5) |
-| Parser supportati | PDF, Word, Excel, PPT, TXT, MD, Immagini (8 formati), Audio (18 formati), Video (22 formati), CV Artistici |
-| Embedding models | 4 (E5, CLIP, CLAP, Gemini2 opzionale) |
-| Collection Qdrant | 4 (text, images, audio, video) |
-| Nuovi endpoint | 3 (match, profile, dashboard) |
-| GitHub commits | 6 |
+| File totali | 74 |
+| Righe di codice | ~8.700 |
+| Moduli Python | 12 |
+| Nuovi endpoint API | 3 (match, profile, dashboard) |
+| Documenti | 4 (README, Handoff, Stato Avanzamento, Proposta Comm.) |
+| GitHub commits | 8 |
+| GitHub stars | — |
+
+---
+
+## Stack Finale
+
+| Layer | Tecnologia |
+|---|---|
+| Backend | Python 3.11+, FastAPI |
+| Vector DB | Qdrant 1.13 |
+| Text Embeddings | multilingual-e5-large (1024-dim) |
+| Image Embeddings | CLIP ViT-L/14 (768-dim) |
+| OCR | EasyOCR + Tesseract |
+| Speech-to-Text | Whisper base |
+| CV Parser | art_cv_parser.py (regex-based, 90+ keywords) |
+| Transcoding | FFmpeg + Pillow + pillow-heif |
+| Encryption | AES-256-GCM + Argon2id |
+| Auth | JWT + OAuth2 |
+| Frontend | HTML/CSS/JS vanilla SPA |
+| Deploy | Colima/Docker + Cloudflare Tunnel |
 
 ---
 
 ## Prossima Azione
 
-Completare MA6 (UI Producer Dashboard) con vista ricerca semantica e shortlist artisti
+Deploy su RunPod con GPU (risolvere issue GHCR package visibility)
