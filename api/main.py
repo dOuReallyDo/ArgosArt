@@ -15,6 +15,7 @@ from storage.database import close_db, init_db
 
 from .routes import router
 from .oauth import router as oauth_router
+from .matching_routes import router as matching_router
 
 settings = get_settings()
 
@@ -72,6 +73,7 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 app.include_router(oauth_router, prefix="/api/auth")
+app.include_router(matching_router, prefix="/api")
 
 
 @app.get("/", response_class=HTMLResponse)
