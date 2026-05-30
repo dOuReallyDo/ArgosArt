@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     tesseract-ocr-ita \
     tesseract-ocr-eng \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     curl \
     ca-certificates \
@@ -19,13 +19,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies
-COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e ".[dev]" && \
-    pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
-
-# Copy source
+# Copy everything first so pyproject.toml can find README.md and source
 COPY . .
+
+# Install Python dependencies (non-editable, hatchling compatible)
+RUN pip install --no-cache-dir --upgrade pip hatchling && \
+    pip install --no-cache-dir ".[dev]" && \
+    pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
 # Create data directory
 RUN mkdir -p /app/data/files /app/data/logs

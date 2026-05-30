@@ -1,5 +1,4 @@
 # Development docker-compose — starts Qdrant, Redis, MinIO for local dev
-version: "3.9"
 
 services:
   # ── Qdrant Vector DB ──────────────────────────────
@@ -12,11 +11,6 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # ── Redis (Celery broker + cache) ─────────────────
   redis:
